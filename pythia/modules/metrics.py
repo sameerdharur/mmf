@@ -346,6 +346,9 @@ class RankAccuracy(BaseMetric):
         """
         accuracies_consistency = AccuracyConsistency()
         quad1, quad2, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
+        if quad1 == 0 and quad2 == 0:
+            #print("Quad1 and Quad2 have the value of zero")
+            return torch.zeros_like((quad1))
         return quad1/(quad1 + quad2)
 
     
