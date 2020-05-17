@@ -10,7 +10,7 @@ import tqdm
 import yaml
 import tarfile
 import zipfile
-
+import pdb
 from torch import nn
 
 from pythia.common.constants import DOWNLOAD_CHUNK_SIZE
@@ -53,15 +53,15 @@ def clip_gradients(model, i_iter, writer, config):
 
 def ckpt_name_from_core_args(config):
     seed = config["training_parameters"]["seed"]
-
+    #pdb.set_trace()
     ckpt_name = "{}_{}_{}".format(
         config["tasks"],
         config["datasets"],
         config["model"]
     )
 
-    if seed is not None:
-        ckpt_name += "_{:d}".format(seed)
+    #if seed is not None:
+    #    ckpt_name += "_{:d}".format(seed)
 
     return ckpt_name
 

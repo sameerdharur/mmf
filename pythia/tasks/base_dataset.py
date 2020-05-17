@@ -1,6 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates.
 from torch.utils.data.dataset import Dataset
-
+import pdb
 from pythia.common.registry import registry
 from pythia.common.sample import SampleList
 from pythia.tasks.processors import Processor
@@ -74,6 +74,7 @@ class BaseDataset(Dataset):
             DO NOT OVERRIDE in child class. Instead override ``get_item``.
         """
         sample = self.get_item(idx)
+        #pdb.set_trace()
         sample.dataset_type = self._dataset_type
         sample.dataset_name = self._name
         return sample

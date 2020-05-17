@@ -16,8 +16,8 @@ import numpy as np
 import json
 
 
-@registry.register_model("pythia")
-class Pythia(BaseModel):
+@registry.register_model("pythia_introspect")
+class PythiaIntrospect(BaseModel):
     def __init__(self, config):
         super().__init__(config)
         self.config = config
@@ -358,54 +358,76 @@ class Pythia(BaseModel):
 
 
     def forward(self, sample_list):
-        # Compute the scores for the reasoning question
-        sample_list.text = self.word_embedding(sample_list.text)
-        text_embedding_total = self.process_text_embedding(sample_list)
+        if sample_list.dataset_name == "vqa2":
+            sample_list.text = self.word_embedding(sample_list.text)
+            text_embedding_total = self.process_text_embedding(sample_list)
 
-        image_embedding_total, _ = self.process_feature_embedding(
-            "image", sample_list, text_embedding_total
-        )
+            image_embedding_total, _ = self.process_feature_embedding(
+                "image", sample_list, text_embedding_total
+            )
 
-        if self.inter_model is not None:
-            image_embedding_total = self.inter_model(image_embedding_total)
+            if self.inter_model is not None:
+                image_embedding_total = self.inter_model(image_embedding_total)
 
-        joint_embedding = self.combine_embeddings(
-            ["image", "text"], [image_embedding_total, text_embedding_total], "main"
-        )
+            joint_embedding = self.combine_embeddings(
+                ["image", "text"], [image_embedding_total, text_embedding_total], "main"
+            )
         #pdb.set_trace()
 
-        self.joint_embedding = joint_embedding
+            self.joint_embedding = joint_embedding
 
-        model_output = {"scores": self.calculate_logits(joint_embedding)}
+            model_output = {"scores": self.calculate_logits(joint_embedding)}
+            
+        else:
+
+        # Compute the scores for the reasoning question
+            sample_list.text = self.word_embedding(sample_list.text)
+            text_embedding_total = self.process_text_embedding(sample_list)
+
+            image_embedding_total, _ = self.process_feature_embedding(
+            "image", sample_list, text_embedding_total
+            )
+
+            if self.inter_model is not None:
+                image_embedding_total = self.inter_model(image_embedding_total)
+
+            joint_embedding = self.combine_embeddings(
+            ["image", "text"], [image_embedding_total, text_embedding_total], "main"
+            )
+        #pdb.set_trace()
+
+            self.joint_embedding = joint_embedding
+
+            model_output = {"scores": self.calculate_logits(joint_embedding)}
 
         # Compute the scores for the sub-question
 
-        sample_list.text_sq = self.word_embedding(sample_list.text_sq)
-        text_embedding_total = self.process_text_embedding(sample_list, info="sub_question")
-        image_embedding_total, _ = self.process_feature_embedding(
+            sample_list.text_sq = self.word_embedding(sample_list.text_sq)
+            text_embedding_total = self.process_text_embedding(sample_list, info="sub_question")
+            image_embedding_total, _ = self.process_feature_embedding(
             "image", sample_list, text_embedding_total
-        )
-        joint_embedding_sq = self.combine_embeddings(
+            )
+            joint_embedding_sq = self.combine_embeddings(
             ["image", "text"], [image_embedding_total, text_embedding_total], "sub_question"
-        )
-        self.joint_embedding_sq = joint_embedding_sq
-        model_output["scores_sq"] = self.calculate_logits(joint_embedding_sq)
+            )
+            self.joint_embedding_sq = joint_embedding_sq
+            model_output["scores_sq"] = self.calculate_logits(joint_embedding_sq)
 
-        sample_list.text_oq = self.word_embedding(sample_list.text_oq)
-        text_embedding_total = self.process_text_embedding(sample_list, info="other_question")
-        image_embedding_total, _ = self.process_feature_embedding(
+            sample_list.text_oq = self.word_embedding(sample_list.text_oq)
+            text_embedding_total = self.process_text_embedding(sample_list, info="other_question")
+            image_embedding_total, _ = self.process_feature_embedding(
             "image", sample_list, text_embedding_total
-        )
-        joint_embedding_oq = self.combine_embeddings(
+            )
+            joint_embedding_oq = self.combine_embeddings(
             ["image", "text"], [image_embedding_total, text_embedding_total], "other_question"
-        )
-        self.joint_embedding_oq = joint_embedding_oq
-        model_output["scores_oq"] = self.calculate_logits(joint_embedding_oq)
-        self.compute_grad_cam(sample_list, model_output, question="main")
-        self.compute_grad_cam(sample_list, model_output, question="sq")
-        self.compute_grad_cam(sample_list, model_output, question="oq")
+            )
+            self.joint_embedding_oq = joint_embedding_oq
+            model_output["scores_oq"] = self.calculate_logits(joint_embedding_oq)
+            self.compute_grad_cam(sample_list, model_output, question="main")
+            self.compute_grad_cam(sample_list, model_output, question="sq")
+            self.compute_grad_cam(sample_list, model_output, question="oq")
 
-        self.compute_distances(sample_list, model_output)
+            self.compute_distances(sample_list, model_output)
         #self.compute_grad_cam()
         #pdb.set_trace()
 
@@ -429,7 +451,7 @@ class Pythia(BaseModel):
 
 # TODO: Update
 @registry.register_model("pythia_question_only")
-class PythiaQuestionOnly(Pythia):
+class PythiaQuestionOnly(PythiaIntrospect):
     def __init__(self, config):
         super().__init__(config)
 
@@ -455,7 +477,7 @@ class PythiaQuestionOnly(Pythia):
 
 # TODO: Update
 @registry.register_model("pythia_image_only")
-class PythiaImageOnly(Pythia):
+class PythiaImageOnly(PythiaIntrospect):
     def __init__(self, config):
         super().__init__(config)
 

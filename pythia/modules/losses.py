@@ -26,15 +26,39 @@ in the following way:
                - params: {}
 """
 import warnings
-
+import pdb
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import warnings
+import numpy as np
 from torch.nn.utils.rnn import pack_padded_sequence
 
 from pythia.common.registry import registry
 
+@registry.register_loss("sq_loss")
+class SubQuestionLoss(nn.Module):
+    def __init__(self):
+            super().__init__()
+
+    def forward(self, sample_list, model_output):
+        """Calculates and returns the binary cross entropy for logits
+
+        Args:
+            sample_list (SampleList): SampleList containing `targets` attribute.
+            model_output (Dict): Model output containing `scores` attribute.
+
+        Returns:
+            torch.FloatTensor: Float value for loss.
+
+        """
+
+        sub_loss = torch.mean(model_output['distance_reas_sub'])
+        other_loss = torch.mean(model_output['distance_reas_other'])
+        #loss = torch.max((sub_loss - other_loss), torch.zeros_like(sub_loss))
+        loss = sub_loss
+        
+        return loss * sample_list["targets"].size(1)
 
 class Losses(nn.Module):
     """``Losses`` acts as an abstraction for instantiating and calculating
@@ -188,6 +212,7 @@ class LogitBinaryCrossEntropy(nn.Module):
         scores = model_output["scores"]
         targets = sample_list["targets"]
         loss = F.binary_cross_entropy_with_logits(scores, targets, reduction="mean")
+        #pdb.set_trace()
 
         return loss * targets.size(1)
 
@@ -345,7 +370,7 @@ class MultiLoss(nn.Module):
         loss = 0
         for idx, loss_fn in enumerate(self.losses):
             value = loss_fn(sample_list, model_output, *args, **kwargs)
-            loss += self.losses_weights[idx] * value
+            loss += self.losses_weights[idx] * list(value.values())[0]
         return loss
 
 

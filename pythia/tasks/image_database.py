@@ -2,7 +2,7 @@
 import numpy as np
 import torch
 import json
-
+import pdb
 
 class ImageDatabase(torch.utils.data.Dataset):
     """
@@ -54,6 +54,7 @@ class ImageDatabase(torch.utils.data.Dataset):
         if type(self.db) == dict:
             self.metadata = self.db.get("metadata", {})
             self.data = self.db.get("data", [])
+            print("Yes dict")
         else:
             # TODO: Deprecate support for this
             self.metadata = {"version": 1}
@@ -72,15 +73,27 @@ class ImageDatabase(torch.utils.data.Dataset):
         data = self.data[idx + self.start_idx]
 
         # Hacks for older IMDBs
+        #pdb.set_trace()
         if "answers" not in data:
+            #print("Answers in data")
             if "all_answers" in data and "valid_answers" not in data:
                 data["answers"] = data["all_answers"]
             if "valid_answers" in data:
                 data["answers"] = data["valid_answers"]
+            if "main_answer_str" in data:
+                data["answers"] = data["main_answer_str"]
+            if "sub_answer_str" in data:
+                data["answers_sq"] = data["sub_answer_str"]
+            if "other_answer_str" in data:
+                data["answers_oq"] = data["other_answer_str"]
 
         # TODO: Later clean up VizWIz IMDB from copy tokens
         if "answers" in data and data["answers"][-1] == "<copy>":
+            #print("Answers not in data")
             data["answers"] = data["answers"][:-1]
+        
+        #pdb.set_trace()
+        #print("Data : {}".format(data))
 
         return data
 

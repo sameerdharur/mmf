@@ -1,10 +1,11 @@
 task_attributes:
     vqa:
         datasets:
-        - vqa2
+        - vqa_introspect
+        #- vqa2
         dataset_size_proportional_sampling: true
         dataset_attributes:
-            vqa2:
+            vqa_introspect:
                 data_root_dir: ../data
                 image_depth_first: false
                 fast_read: false
@@ -18,16 +19,19 @@ task_attributes:
                 imdb_files:
                     train:
                     - /srv/share/sameer/pythia/data/nlp_project/datasets/train_sub_other_questions.npy
+                    - /srv/share/ram/projects/squint_cvpr_oral/code/pythia/data/imdb/vqa/v1_imdb_train2014.npy
+                    #- /srv/share/sameer/pythia/data/nlp_project/datasets/sub_other_questions_train_clean.npy
                     #- imdb/vqa/imdb_train2014.npy
                     val:
                     - /coc/pskynet1/sameer/pythia/data/nlp_project/datasets/val_sub_other_questions.npy
+                    #- /srv/share/sameer/pythia/data/nlp_project/datasets/sub_other_questions_val_clean.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/val_sub_other_questions.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/reasoning_questions_val_split.npy
                     #- imdb/vqa/imdb_val2014.npy
                     #- /srv/share/purva/Assignments/nlp/project/data/final_val.npy
                     #- /srv/share/purva/Assignments/nlp/project/data/final_train.npy
                     test:
-                    - imdb/vqa/imdb_test2015.npy
+                    - /srv/share/sameer/pythia/data/nlp_project/datasets/sub_other_questions_val_clean.npy
                 features_max_len: 100
                 processors:
                   text_processor:
@@ -67,5 +71,5 @@ task_attributes:
                 # Return spatial information of OCR tokens if present
                 use_ocr_info: false
 training_parameters:
-    monitored_metric: vqa2_vqa_accuracy
+    monitored_metric: ranking_accuracy
     metric_minimize: false

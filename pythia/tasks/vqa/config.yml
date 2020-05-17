@@ -28,6 +28,31 @@ task_attributes:
         enforce_slow_reader: false
         metrics: vqa_accuracy
         loss: logit_bce
+      vqa_introspect:
+        data_root_dir: data/
+        image_depth_first: false
+        image_fast_reader: false
+        image_feat_test:
+        - detec/detectron/fc6/vqa/test2015
+        image_feat_train:
+        - detec/detectron/fc6/vqa/train2014
+        - detec/detectron/fc6/vqa/val2014
+        image_feat_val:
+        - detec/detectron/fc6/vqa/val2014
+        image_max_loc: 100
+        imdb_file_test:
+        - imdb/imdb_test2015.npy
+        imdb_file_train:
+        - imdb/imdb_train2014.npy
+        - imdb/imdb_val2train2014.npy
+        imdb_file_val:
+        - imdb/imdb_minival2014.npy
+        question_max_len: 14
+        vocab_answer_file: answers_vqa.txt
+        vocab_question_file: vocabulary_vqa.txt
+        enforce_slow_reader: false
+        metrics: vqa_accuracy
+        loss: logit_bce
 model_attributes:
   top_down_bottom_up:
     model_data_dir: ../data

@@ -47,7 +47,7 @@ Example config for above metric::
 import collections
 
 import torch
-
+import pdb
 from pythia.common.registry import registry
 from pythia.tasks.processors import EvalAIAnswerProcessor
 
@@ -75,6 +75,7 @@ class Metrics:
 
     def _init_metrics(self, metric_list):
         metrics = {}
+        #pdb.set_trace()
         for metric in metric_list:
             params = {}
             if isinstance(metric, collections.abc.Mapping):
@@ -190,6 +191,7 @@ class Accuracy(BaseMetric):
             torch.FloatTensor: accuracy.
 
         """
+        #pdb.set_trace()
         output = model_output["scores"]
         expected = sample_list["targets"]
 
@@ -211,6 +213,34 @@ class Accuracy(BaseMetric):
         total = len(expected)
 
         value = correct / total
+        return value
+
+@registry.register_metric("ranking_accuracy")
+class RankAccuracy(BaseMetric):
+    """Metric for calculating accuracy.
+
+    **Key:** ``accuracy``
+    """
+
+    def __init__(self):
+        super().__init__("batch_ranking")
+
+    def calculate(self, sample_list, model_output, *args, **kwargs):
+        """Calculate accuracy and return it back.
+
+        Args:
+            sample_list (SampleList): SampleList provided by DataLoader for
+                                current iteration
+            model_output (Dict): Dict returned by model.
+
+        Returns:
+            torch.FloatTensor: accuracy.
+
+        """
+        ranking_results = model_output['distance_reas_sub'] < model_output['distance_reas_other']
+        num_of_correct_rank_inputs = torch.sum(ranking_results).float()
+        batch_size = len(model_output['distance_reas_sub'])
+        value = num_of_correct_rank_inputs/batch_size
         return value
 
 
@@ -299,6 +329,7 @@ class VQAAccuracy(BaseMetric):
             torch.FloatTensor: VQA Accuracy
 
         """
+        #pdb.set_trace()
         output = model_output["scores"]
         expected = sample_list["targets"]
 

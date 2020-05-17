@@ -5,7 +5,7 @@ import warnings
 import git
 import torch
 import yaml
-
+import pdb
 from pythia.common.registry import registry
 from pythia.utils.distributed_utils import is_main_process, synchronize
 from pythia.utils.general import (ckpt_name_from_core_args,
@@ -25,7 +25,8 @@ class Checkpoint:
         self.model_name = self.config.model
 
         self.ckpt_foldername = ckpt_name_from_core_args(self.config)
-        self.ckpt_foldername += foldername_from_config_override(self.trainer.args)
+        #pdb.set_trace()
+        #self.ckpt_foldername += foldername_from_config_override(self.trainer.args)
 
         self.device = registry.get("current_device")
 

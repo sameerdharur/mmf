@@ -43,7 +43,7 @@ import collections
 import warnings
 
 from torch import nn
-
+import pdb
 from pythia.common.registry import registry
 from pythia.common.report import Report
 from pythia.modules.losses import Losses
@@ -133,6 +133,9 @@ class BaseModel(nn.Module):
                 model_output["losses"], collections.abc.Mapping
             ), "'losses' must be a dict."
         else:
+            #print("ELSE")
+            #print("Sample List : {}".format(sample_list))
+            #pdb.set_trace()
             model_output["losses"] = self.losses(sample_list, model_output)
 
         if "metrics" in model_output:

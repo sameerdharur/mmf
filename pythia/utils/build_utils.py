@@ -1,7 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates.
 import torch
 import warnings
-
+import pdb
 from pythia.utils.configuration import Configuration
 from pythia.common.registry import registry
 from pythia.utils.general import get_optimizer_parameters
@@ -18,6 +18,7 @@ def build_trainer(args, *rest, **kwargs):
 
     # Finally, update with args that were specifically passed
     # as arguments
+    #pdb.set_trace()
     configuration.update_with_args(args)
     configuration.freeze()
 

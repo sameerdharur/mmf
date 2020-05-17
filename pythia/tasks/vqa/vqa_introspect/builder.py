@@ -12,14 +12,14 @@ import warnings
 from pythia.common.registry import registry
 from pythia.tasks.base_dataset_builder import BaseDatasetBuilder
 from pythia.tasks.concat_dataset import PythiaConcatDataset
-from pythia.tasks.vqa.vqa2.dataset import VQA2Dataset
+from pythia.tasks.vqa.vqa_introspect.dataset import VQAIntrospectDataset
 
 
-@registry.register_builder("vqa2")
-class VQA2Builder(BaseDatasetBuilder):
+@registry.register_builder("vqa_introspect")
+class VQAIntrospectBuilder(BaseDatasetBuilder):
     def __init__(self):
-        super().__init__("vqa2")
-        self.dataset_class = VQA2Dataset
+        super().__init__("vqa_introspect")
+        self.dataset_class = VQAIntrospectDataset
 
     def _load(self, dataset_type, config, *args, **kwargs):
         self.config = config

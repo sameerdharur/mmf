@@ -1,6 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates.
 import torch
 from torch import nn
+import pdb
 from torch.nn.utils.weight_norm import weight_norm
 from pythia.common.registry import registry
 from pythia.modules.decoders import LanguageDecoder
@@ -179,6 +180,8 @@ class ModalCombineLayer(nn.Module):
         self.out_dim = self.module.out_dim
 
     def forward(self, *args, **kwargs):
+        embedding = self.module(*args, **kwargs)
+        self.question_embedding = self.module.question_embedding
         return self.module(*args, **kwargs)
 
 
@@ -294,7 +297,7 @@ class NonLinearElementMultiply(nn.Module):
         context_dim = kwargs.get("context_dim", None)
         if context_dim is None:
             context_dim = ques_emb_dim
-
+        self.question_embedding = None
         self.fa_context = ReLUWithWeightNormFC(context_dim, kwargs["hidden_dim"])
         self.dropout = nn.Dropout(kwargs["dropout"])
         self.out_dim = kwargs["hidden_dim"]
@@ -302,6 +305,8 @@ class NonLinearElementMultiply(nn.Module):
     def forward(self, image_feat, question_embedding, context_embedding=None):
         image_fa = self.fa_image(image_feat)
         question_fa = self.fa_txt(question_embedding)
+        #pdb.set_trace()
+        self.question_embedding = question_fa
 
         if len(image_feat.size()) == 3:
             question_fa_expand = question_fa.unsqueeze(1)
@@ -317,6 +322,7 @@ class NonLinearElementMultiply(nn.Module):
             joint_feature = torch.cat([joint_feature, context_text_joint_feaure], dim=1)
 
         joint_feature = self.dropout(joint_feature)
+        #pdb.set_trace()
 
         return joint_feature
 

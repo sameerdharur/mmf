@@ -13,9 +13,9 @@ from pythia.utils.distributed_utils import is_main_process
 from pythia.utils.general import get_pythia_root
 
 
-class VQA2Dataset(BaseDataset):
+class VQAIntrospectDataset(BaseDataset):
     def __init__(self, dataset_type, imdb_file_index, config, *args, **kwargs):
-        super().__init__("vqa2", dataset_type, config)
+        super().__init__("vqa_introspect", dataset_type, config)
         imdb_files = self.config.imdb_files
         #pdb.set_trace()
         if dataset_type not in imdb_files:
