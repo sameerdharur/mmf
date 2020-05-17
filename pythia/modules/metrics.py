@@ -215,6 +215,275 @@ class Accuracy(BaseMetric):
         value = correct / total
         return value
 
+
+class AccuracyConsistency():
+    """Metric for calculating accuracy.
+
+    **Key:** ``accuracy``
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def calculate(self, sample_list, model_output, *args, **kwargs):
+        """Calculate accuracy and return it back.
+
+        Args:
+            sample_list (SampleList): SampleList provided by DataLoader for
+                                current iteration
+            model_output (Dict): Dict returned by model.
+
+        Returns:
+            torch.FloatTensor: accuracy.
+
+        """
+        output_reas = model_output["scores"]
+        expected_reas = sample_list["targets"]
+
+        output_sq = model_output["scores_sq"]
+        expected_sq = sample_list["targets_sq"]
+
+        output_oq = model_output["scores_oq"]
+        expected_oq = sample_list["targets_oq"]
+
+        assert (
+            output_reas.dim() <= 2
+        ), "Output from model shouldn't have more than dim 2 for accuracy"
+        assert (
+            expected_reas.dim() <= 2
+        ), "Expected target shouldn't have more than dim 2 for accuracy"
+
+        if output_reas.dim() == 2:
+            output_reas = output_reas.argmax(dim=1)
+
+        # If more than 1
+        if expected_reas.dim() == 2:
+            expected_reas = expected_reas.argmax(dim=1)
+
+        assert (
+            output_sq.dim() <= 2
+        ), "Output from model shouldn't have more than dim 2 for accuracy"
+        assert (
+            expected_sq.dim() <= 2
+        ), "Expected target shouldn't have more than dim 2 for accuracy"
+
+        if output_sq.dim() == 2:
+            output_sq = output_sq.argmax(dim=1)
+
+        # If more than 1
+        if expected_sq.dim() == 2:
+            expected_sq = expected_sq.argmax(dim=1)
+
+        assert (
+            output_oq.dim() <= 2
+        ), "Output from model shouldn't have more than dim 2 for accuracy"
+        assert (
+            expected_oq.dim() <= 2
+        ), "Expected target shouldn't have more than dim 2 for accuracy"
+
+        if output_oq.dim() == 2:
+            output_oq = output_oq.argmax(dim=1)
+
+        # If more than 1
+        if expected_oq.dim() == 2:
+            expected_oq = expected_oq.argmax(dim=1)
+
+        one_hots_reas = expected_reas.new_zeros(*model_output["scores"].size())
+        one_hots_reas.scatter_(1, output_reas.view(-1, 1), 1)
+
+        one_hots_sq = expected_sq.new_zeros(*model_output["scores"].size())
+        one_hots_sq.scatter_(1, output_sq.view(-1, 1), 1)
+
+        one_hots_oq = expected_sq.new_zeros(*model_output["scores"].size())
+        one_hots_oq.scatter_(1, output_oq.view(-1, 1), 1)
+
+        one_hots_reas_expected = one_hots_reas.new_zeros(*one_hots_reas.size())
+        one_hots_reas_expected.scatter_(1, expected_reas.view(-1, 1), 1)
+
+        one_hots_sq_expected = one_hots_reas.new_zeros(*one_hots_reas.size())
+        one_hots_sq_expected.scatter_(1, expected_sq.view(-1, 1), 1)
+
+        one_hots_oq_expected = one_hots_reas.new_zeros(*one_hots_reas.size())
+        one_hots_oq_expected.scatter_(1, expected_oq.view(-1, 1), 1)
+
+        scores_reas = one_hots_reas * one_hots_reas_expected
+        scores_sq = one_hots_sq * one_hots_sq_expected
+        scores_oq = one_hots_oq * one_hots_oq_expected
+        scores_total = torch.sum(scores_reas.float()) + torch.sum(scores_sq.float()) + torch.sum(scores_oq.float())
+
+        accuracy_reas = torch.sum(scores_reas.float()) / expected_reas.size(0)
+        accuracy_sq = torch.sum(scores_sq.float()) / expected_sq.size(0)
+        accuracy_oq = torch.sum(scores_oq.float()) / expected_oq.size(0)
+        accuracy_total = scores_total/(3*expected_reas.size(0))
+
+        consistency_score = (scores_reas.sum(dim=1).bool()*scores_sq.sum(dim=1).bool()).sum()
+        return consistency_score.float()/output_reas.size(0), accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total
+
+
+@registry.register_metric("consistency")
+class RankAccuracy(BaseMetric):
+    """Metric for calculating accuracy.
+
+    **Key:** ``accuracy``
+    """
+
+    def __init__(self):
+        super().__init__("consistency")
+
+    def calculate(self, sample_list, model_output, *args, **kwargs):
+        """Calculate accuracy and return it back.
+
+        Args:
+            sample_list (SampleList): SampleList provided by DataLoader for
+                                current iteration
+            model_output (Dict): Dict returned by model.
+
+        Returns:
+            torch.FloatTensor: accuracy.
+
+        """
+        accuracies_consistency = AccuracyConsistency()
+        consistency, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
+        return consistency
+
+    
+@registry.register_metric("reasoning_accuracy")
+class RankAccuracy(BaseMetric):
+    """Metric for calculating accuracy.
+
+    **Key:** ``accuracy``
+    """
+
+    def __init__(self):
+        super().__init__("reasoning_accuracy")
+
+    def calculate(self, sample_list, model_output, *args, **kwargs):
+        """Calculate accuracy and return it back.
+
+        Args:
+            sample_list (SampleList): SampleList provided by DataLoader for
+                                current iteration
+            model_output (Dict): Dict returned by model.
+
+        Returns:
+            torch.FloatTensor: accuracy.
+
+        """
+        accuracies_consistency = AccuracyConsistency()
+        consistency, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
+        return accuracy_reas
+
+
+@registry.register_metric("sub_accuracy")
+class RankAccuracy(BaseMetric):
+    """Metric for calculating accuracy.
+
+    **Key:** ``accuracy``
+    """
+
+    def __init__(self):
+        super().__init__("sub_accuracy")
+
+    def calculate(self, sample_list, model_output, *args, **kwargs):
+        """Calculate accuracy and return it back.
+
+        Args:
+            sample_list (SampleList): SampleList provided by DataLoader for
+                                current iteration
+            model_output (Dict): Dict returned by model.
+
+        Returns:
+            torch.FloatTensor: accuracy.
+
+        """
+        accuracies_consistency = AccuracyConsistency()
+        consistency, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
+        return accuracy_sq
+
+
+@registry.register_metric("other_accuracy")
+class RankAccuracy(BaseMetric):
+    """Metric for calculating accuracy.
+
+    **Key:** ``accuracy``
+    """
+
+    def __init__(self):
+        super().__init__("other_accuracy")
+
+    def calculate(self, sample_list, model_output, *args, **kwargs):
+        """Calculate accuracy and return it back.
+
+        Args:
+            sample_list (SampleList): SampleList provided by DataLoader for
+                                current iteration
+            model_output (Dict): Dict returned by model.
+
+        Returns:
+            torch.FloatTensor: accuracy.
+
+        """
+        accuracies_consistency = AccuracyConsistency()
+        consistency, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
+        return accuracy_oq
+
+
+@registry.register_metric("total_accuracy")
+class RankAccuracy(BaseMetric):
+    """Metric for calculating accuracy.
+
+    **Key:** ``accuracy``
+    """
+
+    def __init__(self):
+        super().__init__("total_accuracy")
+
+    def calculate(self, sample_list, model_output, *args, **kwargs):
+        """Calculate accuracy and return it back.
+
+        Args:
+            sample_list (SampleList): SampleList provided by DataLoader for
+                                current iteration
+            model_output (Dict): Dict returned by model.
+
+        Returns:
+            torch.FloatTensor: accuracy.
+
+        """
+        accuracies_consistency = AccuracyConsistency()
+        consistency, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
+        return accuracy_total
+
+
+@registry.register_metric("ranking_accuracy")
+class RankAccuracy(BaseMetric):
+    """Metric for calculating accuracy.
+
+    **Key:** ``accuracy``
+    """
+
+    def __init__(self):
+        super().__init__("batch_ranking")
+
+    def calculate(self, sample_list, model_output, *args, **kwargs):
+        """Calculate accuracy and return it back.
+
+        Args:
+            sample_list (SampleList): SampleList provided by DataLoader for
+                                current iteration
+            model_output (Dict): Dict returned by model.
+
+        Returns:
+            torch.FloatTensor: accuracy.
+
+        """
+        ranking_results = model_output['distance_reas_sub'] < model_output['distance_reas_other']
+        num_of_correct_rank_inputs = torch.sum(ranking_results).float()
+        batch_size = len(model_output['distance_reas_sub'])
+        value = num_of_correct_rank_inputs/batch_size
+        return value
+
+
 @registry.register_metric("ranking_accuracy")
 class RankAccuracy(BaseMetric):
     """Metric for calculating accuracy.

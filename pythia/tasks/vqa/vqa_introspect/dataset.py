@@ -42,6 +42,7 @@ class VQAIntrospectDataset(BaseDataset):
             self._return_info = self.config.get("return_info", True)
 
             all_image_feature_dirs = self.config.image_features[dataset_type]
+            print("IMDB file index : {}".format(imdb_file_index))
             curr_image_features_dir = all_image_feature_dirs[imdb_file_index]
             curr_image_features_dir = curr_image_features_dir.split(",")
             curr_image_features_dir = self._get_absolute_path(curr_image_features_dir)
@@ -98,32 +99,55 @@ class VQAIntrospectDataset(BaseDataset):
     def load_item(self, idx):
         sample_info = self.imdb[idx]
         current_sample = Sample()
+        current_sample.dataset_name = "vqa2"
 
         if "question_tokens" in sample_info:
             text_processor_argument = {"tokens": sample_info["question_tokens"]}
+            processed_question = self.text_processor(text_processor_argument)
+            current_sample.text_len = torch.tensor(
+            len(sample_info["question_tokens"]), dtype=torch.int
+            #len(sample_info["main_question_tokens"]), dtype=torch.int
+            )
         else:
+            current_sample.dataset_name = "vqa_introspect"
             #text_processor_argument = {"text": sample_info["question"]}
             text_processor_argument = {"text": sample_info["main_question_str"]}
             if "sub_question_str" in sample_info:
                 text_processor_argument_sq = {"text": sample_info["sub_question_str"]}
+                processed_question_sq = self.text_processor(text_processor_argument_sq)
+                current_sample.text_sq = processed_question_sq["text"]
+                
             if "other_question_str" in sample_info:
                 text_processor_argument_oq = {"text": sample_info["other_question_str"]}
+                processed_question_oq = self.text_processor(text_processor_argument_oq)
+                current_sample.text_oq = processed_question_oq["text"]
+                
+            current_sample.question_text = sample_info["main_question_str"]
+            current_sample.reasoning_question = sample_info["main_question_str"]
+            current_sample.reasoning_answer = sample_info["main_answer_str"][0]
+            current_sample.image_url = sample_info["image_path"]
+            current_sample.sub_question = sample_info["sub_question_str"]
+            current_sample.other_question = sample_info["other_question_str"]
+            current_sample.text_len = torch.tensor(
+            #len(sample_info["question_tokens"]), dtype=torch.int
+            len(sample_info["main_question_tokens"]), dtype=torch.int
+            )
 
         processed_question = self.text_processor(text_processor_argument)
         processed_question_sq = self.text_processor(text_processor_argument_sq)
         processed_question_oq = self.text_processor(text_processor_argument_oq)
 
         current_sample.text = processed_question["text"]
-        current_sample.text_sq = processed_question_sq["text"]
-        current_sample.text_oq = processed_question_oq["text"]
-        current_sample.question_text = sample_info["main_question_str"]
-        current_sample.reasoning_question = sample_info["main_question_str"]
-        current_sample.reasoning_answer = sample_info["main_answer_str"][0]
+        #current_sample.text_sq = processed_question_sq["text"]
+        #current_sample.text_oq = processed_question_oq["text"]
+        #current_sample.question_text = sample_info["main_question_str"]
+        #current_sample.reasoning_question = sample_info["main_question_str"]
+        #current_sample.reasoning_answer = sample_info["main_answer_str"][0]
         #current_sample.image_url = sample_info["img_path"]
-        current_sample.image_url = sample_info["image_path"]
+        #current_sample.image_url = sample_info["image_path"]
 
-        current_sample.sub_question = sample_info["sub_question_str"]
-        current_sample.other_question = sample_info["other_question_str"]
+        #current_sample.sub_question = sample_info["sub_question_str"]
+        #current_sample.other_question = sample_info["other_question_str"]
     
         current_sample.question_id = torch.tensor(
             sample_info["question_id"], dtype=torch.int
@@ -136,10 +160,10 @@ class VQAIntrospectDataset(BaseDataset):
         else:
             current_sample.image_id = sample_info["image_id"]
 
-        current_sample.text_len = torch.tensor(
+        #current_sample.text_len = torch.tensor(
             #len(sample_info["question_tokens"]), dtype=torch.int
-            len(sample_info["main_question_tokens"]), dtype=torch.int
-        )
+        #    len(sample_info["main_question_tokens"]), dtype=torch.int
+        #)
 
         if self._use_features is True:
             features = self.features_db[idx]
