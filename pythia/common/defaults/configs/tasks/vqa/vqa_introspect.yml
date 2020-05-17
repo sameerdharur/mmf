@@ -26,7 +26,7 @@ task_attributes:
                     #- imdb/vqa/imdb_train2014.npy
                     val:
                     - /coc/pskynet1/sameer/pythia/data/nlp_project/datasets/val_sub_other_questions.npy
-                    #- /srv/share/sameer/pythia/data/nlp_project/datasets/sub_other_questions_val_clean.npy
+                    #- /srv/share/sameer/pythia/data/nlp_project/datasets/sub_other_questions_train_mini.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/val_sub_other_questions.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/reasoning_questions_val_split.npy
                     #- imdb/vqa/imdb_val2014.npy

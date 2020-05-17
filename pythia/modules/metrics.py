@@ -317,8 +317,9 @@ class AccuracyConsistency():
         accuracy_total = scores_total/(3*expected_reas.size(0))
         #pdb.set_trace()
 
-        consistency_score = (scores_reas.sum(dim=1).bool()*scores_sq.sum(dim=1).bool()).sum()
-        return consistency_score.float()/output_reas.size(0), accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total
+        quad1 = (scores_reas.sum(dim=1).bool()*scores_sq.sum(dim=1).bool()).sum()
+        quad2 = (scores_reas.sum(dim=1).bool()*(~(scores_sq.sum(dim=1).bool()))).sum()
+        return quad1.float()/output_reas.size(0), quad2.float()/output_reas.size(0), accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total
 
 
 @registry.register_metric("consistency")
@@ -344,8 +345,8 @@ class RankAccuracy(BaseMetric):
 
         """
         accuracies_consistency = AccuracyConsistency()
-        consistency, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
-        return consistency
+        quad1, quad2, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
+        return quad1/(quad1 + quad2)
 
     
 @registry.register_metric("reasoning_accuracy")
@@ -371,7 +372,7 @@ class RankAccuracy(BaseMetric):
 
         """
         accuracies_consistency = AccuracyConsistency()
-        consistency, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
+        quad1, quad2, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
         return accuracy_reas
 
 
@@ -398,7 +399,7 @@ class RankAccuracy(BaseMetric):
 
         """
         accuracies_consistency = AccuracyConsistency()
-        consistency, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
+        quad1, quad2, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
         return accuracy_sq
 
 
@@ -425,7 +426,7 @@ class RankAccuracy(BaseMetric):
 
         """
         accuracies_consistency = AccuracyConsistency()
-        consistency, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
+        quad1, quad2, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
         return accuracy_oq
 
 
@@ -452,7 +453,7 @@ class RankAccuracy(BaseMetric):
 
         """
         accuracies_consistency = AccuracyConsistency()
-        consistency, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
+        quad1, quad2, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
         return accuracy_total
 
 
@@ -464,36 +465,7 @@ class RankAccuracy(BaseMetric):
     """
 
     def __init__(self):
-        super().__init__("batch_ranking")
-
-    def calculate(self, sample_list, model_output, *args, **kwargs):
-        """Calculate accuracy and return it back.
-
-        Args:
-            sample_list (SampleList): SampleList provided by DataLoader for
-                                current iteration
-            model_output (Dict): Dict returned by model.
-
-        Returns:
-            torch.FloatTensor: accuracy.
-
-        """
-        ranking_results = model_output['distance_reas_sub'] < model_output['distance_reas_other']
-        num_of_correct_rank_inputs = torch.sum(ranking_results).float()
-        batch_size = len(model_output['distance_reas_sub'])
-        value = num_of_correct_rank_inputs/batch_size
-        return value
-
-
-@registry.register_metric("ranking_accuracy")
-class RankAccuracy(BaseMetric):
-    """Metric for calculating accuracy.
-
-    **Key:** ``accuracy``
-    """
-
-    def __init__(self):
-        super().__init__("batch_ranking")
+        super().__init__("ranking_accuracy")
 
     def calculate(self, sample_list, model_output, *args, **kwargs):
         """Calculate accuracy and return it back.
