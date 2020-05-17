@@ -56,6 +56,7 @@ class SubQuestionLoss(nn.Module):
         sub_loss = torch.mean(model_output['distance_reas_sub'])
         other_loss = torch.mean(model_output['distance_reas_other'])
         loss = torch.max((sub_loss - other_loss), torch.zeros_like(sub_loss))
+        #pdb.set_trace()
         #loss = sub_loss 
         
         return loss * sample_list["targets"].size(1)

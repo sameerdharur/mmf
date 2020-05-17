@@ -101,6 +101,7 @@ class SampleList(OrderedDict):
 
             for idx, sample in enumerate(samples):
                 # it should be a tensor but not a 0-d tensor
+                #print("Field : {}".format(field))
                 if (
                     isinstance(sample[field], torch.Tensor)
                     and len(sample[field].size()) != 0

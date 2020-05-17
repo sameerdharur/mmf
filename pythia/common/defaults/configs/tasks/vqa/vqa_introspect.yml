@@ -12,14 +12,16 @@ task_attributes:
                 image_features:
                     train:
                     - coco/detectron_fix_100/fc6/train_val_2014,coco/resnet152/train_val_2014
+                    - coco/detectron_fix_100/fc6/train_val_2014,coco/resnet152/train_val_2014
                     val:
                     - coco/detectron_fix_100/fc6/train_val_2014,coco/resnet152/train_val_2014
                     test:
                     - coco/detectron_fix_100/fc6/test2015,coco/resnet152/test2015
                 imdb_files:
                     train:
-                    - /srv/share/sameer/pythia/data/nlp_project/datasets/train_sub_other_questions.npy
                     - /srv/share/ram/projects/squint_cvpr_oral/code/pythia/data/imdb/vqa/v1_imdb_train2014.npy
+                    - /srv/share/sameer/pythia/data/nlp_project/datasets/train_sub_other_questions.npy
+                    
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/sub_other_questions_train_clean.npy
                     #- imdb/vqa/imdb_train2014.npy
                     val:
@@ -31,7 +33,7 @@ task_attributes:
                     #- /srv/share/purva/Assignments/nlp/project/data/final_val.npy
                     #- /srv/share/purva/Assignments/nlp/project/data/final_train.npy
                     test:
-                    - /srv/share/sameer/pythia/data/nlp_project/datasets/sub_other_questions_val_clean.npy
+                    - /coc/pskynet1/sameer/pythia/data/nlp_project/datasets/val_sub_other_questions.npy
                 features_max_len: 100
                 processors:
                   text_processor:

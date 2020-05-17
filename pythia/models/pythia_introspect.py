@@ -358,7 +358,9 @@ class PythiaIntrospect(BaseModel):
 
 
     def forward(self, sample_list):
+        #pdb.set_trace()
         if sample_list.dataset_name == "vqa2":
+            pdb.set_trace()
             sample_list.text = self.word_embedding(sample_list.text)
             text_embedding_total = self.process_text_embedding(sample_list)
 
@@ -377,7 +379,11 @@ class PythiaIntrospect(BaseModel):
             self.joint_embedding = joint_embedding
 
             model_output = {"scores": self.calculate_logits(joint_embedding)}
-            
+            model_output["scores_sq"] = model_output["scores"]
+            model_output["scores_oq"] = model_output["scores"]
+            model_output["distance_reas_sub"] = torch.zeros_like(model_output["scores"])
+            model_output["distance_reas_other"] = torch.zeros_like(model_output["scores"])
+
         else:
 
         # Compute the scores for the reasoning question

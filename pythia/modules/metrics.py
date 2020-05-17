@@ -315,6 +315,7 @@ class AccuracyConsistency():
         accuracy_sq = torch.sum(scores_sq.float()) / expected_sq.size(0)
         accuracy_oq = torch.sum(scores_oq.float()) / expected_oq.size(0)
         accuracy_total = scores_total/(3*expected_reas.size(0))
+        #pdb.set_trace()
 
         consistency_score = (scores_reas.sum(dim=1).bool()*scores_sq.sum(dim=1).bool()).sum()
         return consistency_score.float()/output_reas.size(0), accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total

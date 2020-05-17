@@ -14,5 +14,5 @@ srun python tools/run.py \
     --model pythia_introspect \
     --config ${CONFIG_YML} \
     --resume_file data/models/pythia.pth \
-    --save_dir ./save_clean_${WEIGHT} \
+    --save_dir /srv/share/sameer/pythia_results/logs/save_full_loss_${WEIGHT} \
     --config_override '{"model_attributes":{"pythia":{"losses":[{"type":"multi", "params":[{"params":{}, "type":"logit_bce", "weight":1}, {"params":{}, "type":"sq_loss", "weight":'$WEIGHT'}]}]}}}'

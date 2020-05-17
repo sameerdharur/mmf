@@ -84,7 +84,7 @@ training_parameters:
   warmup_iterations: 1000
   patience: 4000
   batch_size: 8
-  num_workers: 2
+  num_workers: 7
   task_size_proportional_sampling: true
   monitored_metric: ranking_accuracy
   metric_minimize: false

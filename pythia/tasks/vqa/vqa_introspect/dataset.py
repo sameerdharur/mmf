@@ -42,7 +42,8 @@ class VQAIntrospectDataset(BaseDataset):
             self._return_info = self.config.get("return_info", True)
 
             all_image_feature_dirs = self.config.image_features[dataset_type]
-            print("IMDB file index : {}".format(imdb_file_index))
+            #print("IMDB file index : {}".format(imdb_file_index))
+            #pdb.set_trace()
             curr_image_features_dir = all_image_feature_dirs[imdb_file_index]
             curr_image_features_dir = curr_image_features_dir.split(",")
             curr_image_features_dir = self._get_absolute_path(curr_image_features_dir)
@@ -101,17 +102,28 @@ class VQAIntrospectDataset(BaseDataset):
         current_sample = Sample()
         current_sample.dataset_name = "vqa2"
 
-        if "question_tokens" in sample_info:
+        if "sub_question_str" not in sample_info:
             text_processor_argument = {"tokens": sample_info["question_tokens"]}
             processed_question = self.text_processor(text_processor_argument)
             current_sample.text_len = torch.tensor(
             len(sample_info["question_tokens"]), dtype=torch.int
             #len(sample_info["main_question_tokens"]), dtype=torch.int
             )
+            current_sample.text = processed_question["text"]
+            current_sample.question_text = sample_info["question_str"]
+            current_sample.text_sq = current_sample.text
+            current_sample.text_oq = current_sample.text
+            current_sample.reasoning_question = sample_info["question_str"]
+            current_sample.reasoning_answer = sample_info["answers"]
+            #current_sample.image_url = ""
+            current_sample.sub_question = sample_info["question_str"]
+            current_sample.other_question = sample_info["question_str"]
         else:
             current_sample.dataset_name = "vqa_introspect"
             #text_processor_argument = {"text": sample_info["question"]}
             text_processor_argument = {"text": sample_info["main_question_str"]}
+            processed_question = self.text_processor(text_processor_argument)
+            current_sample.text = processed_question["text"]
             if "sub_question_str" in sample_info:
                 text_processor_argument_sq = {"text": sample_info["sub_question_str"]}
                 processed_question_sq = self.text_processor(text_processor_argument_sq)
@@ -125,7 +137,7 @@ class VQAIntrospectDataset(BaseDataset):
             current_sample.question_text = sample_info["main_question_str"]
             current_sample.reasoning_question = sample_info["main_question_str"]
             current_sample.reasoning_answer = sample_info["main_answer_str"][0]
-            current_sample.image_url = sample_info["image_path"]
+            #current_sample.image_url = sample_info["image_path"]
             current_sample.sub_question = sample_info["sub_question_str"]
             current_sample.other_question = sample_info["other_question_str"]
             current_sample.text_len = torch.tensor(
@@ -133,9 +145,9 @@ class VQAIntrospectDataset(BaseDataset):
             len(sample_info["main_question_tokens"]), dtype=torch.int
             )
 
-        processed_question = self.text_processor(text_processor_argument)
-        processed_question_sq = self.text_processor(text_processor_argument_sq)
-        processed_question_oq = self.text_processor(text_processor_argument_oq)
+        #processed_question = self.text_processor(text_processor_argument)
+        #processed_question_sq = self.text_processor(text_processor_argument_sq)
+        #processed_question_oq = self.text_processor(text_processor_argument_oq)
 
         current_sample.text = processed_question["text"]
         #current_sample.text_sq = processed_question_sq["text"]
@@ -174,6 +186,7 @@ class VQAIntrospectDataset(BaseDataset):
         # Depending on whether we are using soft copy this can add
         # dynamic answer space
         current_sample = self.add_answer_info(sample_info, current_sample)
+        #print("Dataset type : {}".format(current_sample.dataset_name))
         #print("current sample : {}".format(current_sample))
         #pdb.set_trace()
         #print("Current sample : {}".format(current_sample))
@@ -228,17 +241,24 @@ class VQAIntrospectDataset(BaseDataset):
             sample.answers_sq = processed_soft_copy_answers["answers"]
             sample.targets_sq = processed_soft_copy_answers["answers_scores"]
             sample.gt_answer_index_sq = processed_soft_copy_answers["answers_indices"][0]
+        else:
+            sample.answers_sq = sample.answers
+            sample.targets_sq = sample.targets
+            sample.gt_answer_index_sq = sample.gt_answer_index
 
         if "answers_oq" in sample_info:
             answers = sample_info["answers_oq"]
             answer_processor_arg = {"answers": answers}
-
             if self.use_ocr:
                 answer_processor_arg["tokens"] = sample_info["ocr_tokens"]
             processed_soft_copy_answers = self.answer_processor(answer_processor_arg)
             sample.answers_oq = processed_soft_copy_answers["answers"]
             sample.targets_oq = processed_soft_copy_answers["answers_scores"]
             sample.gt_answer_index_oq = processed_soft_copy_answers["answers_indices"][0]
+        else:
+            sample.answers_oq = sample.answers
+            sample.targets_oq = sample.targets
+            sample.gt_answer_index_oq = sample.gt_answer_index
         #print("Sample : {}".format(sample))
 
         return sample
