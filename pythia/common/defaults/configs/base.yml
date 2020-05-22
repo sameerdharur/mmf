@@ -21,7 +21,8 @@ training_parameters:
     # This will also evaluate validation metrics on whole validation set
     # TODO: Change this to checkpoint_interval and create a new
     # `validation_interval` for evaluating on validation set
-    snapshot_interval: 5000
+    snapshot_interval: 2000
+    test_interval: 100
     # Whether gradients should be clipped
     clip_gradients: false
     # Mode for clip norm

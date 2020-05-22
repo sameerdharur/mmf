@@ -26,6 +26,14 @@ class VQAIntrospectDataset(BaseDataset):
 
         self.imdb_file = imdb_files[dataset_type][imdb_file_index]
         self.imdb_file = self._get_absolute_path(self.imdb_file)
+        self.dataset = dataset_type
+
+        if dataset_type == 'train':
+            if 'imdb_train2014.npy' in self.imdb_file:
+                self.dataset = 'train_vqa'
+            elif 'train_sub_other_questions.npy' in self.imdb_file:
+                self.dataset = 'train_introspect'
+
         self.imdb = ImageDatabase(self.imdb_file)
 
         self.kwargs = kwargs
@@ -100,9 +108,10 @@ class VQAIntrospectDataset(BaseDataset):
     def load_item(self, idx):
         sample_info = self.imdb[idx]
         current_sample = Sample()
-        current_sample.dataset_name = "vqa2"
+        current_sample.dataset_name = self.dataset
 
-        if "sub_question_str" not in sample_info:
+        if self.dataset == 'train_vqa':
+            
             text_processor_argument = {"tokens": sample_info["question_tokens"]}
             processed_question = self.text_processor(text_processor_argument)
             current_sample.text_len = torch.tensor(
@@ -114,12 +123,13 @@ class VQAIntrospectDataset(BaseDataset):
             current_sample.text_sq = current_sample.text
             current_sample.text_oq = current_sample.text
             current_sample.reasoning_question = sample_info["question_str"]
-            current_sample.reasoning_answer = sample_info["answers"]
+            current_sample.reasoning_answer = sample_info["answers"][0]
             #current_sample.image_url = ""
             current_sample.sub_question = sample_info["question_str"]
             current_sample.other_question = sample_info["question_str"]
-        else:
-            current_sample.dataset_name = "vqa_introspect"
+
+        elif self.dataset == 'train_introspect' or self.dataset == 'test':
+           
             #text_processor_argument = {"text": sample_info["question"]}
             text_processor_argument = {"text": sample_info["main_question_str"]}
             processed_question = self.text_processor(text_processor_argument)
@@ -145,21 +155,34 @@ class VQAIntrospectDataset(BaseDataset):
             len(sample_info["main_question_tokens"]), dtype=torch.int
             )
 
-        #processed_question = self.text_processor(text_processor_argument)
-        #processed_question_sq = self.text_processor(text_processor_argument_sq)
-        #processed_question_oq = self.text_processor(text_processor_argument_oq)
+        else:
+            
+            #text_processor_argument = {"text": sample_info["question"]}
+            text_processor_argument = {"text": sample_info["question_str"]}
+            processed_question = self.text_processor(text_processor_argument)
+            current_sample.text = processed_question["text"]
+            if "sub_question_str" in sample_info:
+                text_processor_argument_sq = {"text": sample_info["sub_question_str"]}
+                processed_question_sq = self.text_processor(text_processor_argument_sq)
+                current_sample.text_sq = processed_question_sq["text"]
+                
+            if "other_question_str" in sample_info:
+                text_processor_argument_oq = {"text": sample_info["other_question_str"]}
+                processed_question_oq = self.text_processor(text_processor_argument_oq)
+                current_sample.text_oq = processed_question_oq["text"]
+            else:
+                current_sample.text_oq = current_sample.text_sq
+                
+            current_sample.question_text = sample_info["question_str"]
+            current_sample.reasoning_question = sample_info["question_str"]
+            current_sample.reasoning_answer = sample_info["answers"][0]
+            #current_sample.image_url = sample_info["image_path"]
+            current_sample.sub_question = sample_info["sub_question_str"]
+            current_sample.other_question = sample_info["sub_question_str"]
+            current_sample.text_len = torch.tensor(
+            #len(sample_info["question_tokens"]), dtype=torch.int
+            len(sample_info["question_tokens"]), dtype=torch.int)
 
-        current_sample.text = processed_question["text"]
-        #current_sample.text_sq = processed_question_sq["text"]
-        #current_sample.text_oq = processed_question_oq["text"]
-        #current_sample.question_text = sample_info["main_question_str"]
-        #current_sample.reasoning_question = sample_info["main_question_str"]
-        #current_sample.reasoning_answer = sample_info["main_answer_str"][0]
-        #current_sample.image_url = sample_info["img_path"]
-        #current_sample.image_url = sample_info["image_path"]
-
-        #current_sample.sub_question = sample_info["sub_question_str"]
-        #current_sample.other_question = sample_info["other_question_str"]
     
         current_sample.question_id = torch.tensor(
             sample_info["question_id"], dtype=torch.int
@@ -241,6 +264,15 @@ class VQAIntrospectDataset(BaseDataset):
             sample.answers_sq = processed_soft_copy_answers["answers"]
             sample.targets_sq = processed_soft_copy_answers["answers_scores"]
             sample.gt_answer_index_sq = processed_soft_copy_answers["answers_indices"][0]
+        if "sub_answers" in sample_info:
+            answers = sample_info["sub_answers"]
+            answer_processor_arg = {"answers": answers}
+            if self.use_ocr:
+                answer_processor_arg["tokens"] = sample_info["ocr_tokens"]
+            processed_soft_copy_answers = self.answer_processor(answer_processor_arg)
+            sample.answers_sq = processed_soft_copy_answers["answers"]
+            sample.targets_sq = processed_soft_copy_answers["answers_scores"]
+            sample.gt_answer_index_sq = processed_soft_copy_answers["answers_indices"][0]
         else:
             sample.answers_sq = sample.answers
             sample.targets_sq = sample.targets
@@ -256,9 +288,9 @@ class VQAIntrospectDataset(BaseDataset):
             sample.targets_oq = processed_soft_copy_answers["answers_scores"]
             sample.gt_answer_index_oq = processed_soft_copy_answers["answers_indices"][0]
         else:
-            sample.answers_oq = sample.answers
-            sample.targets_oq = sample.targets
-            sample.gt_answer_index_oq = sample.gt_answer_index
+            sample.answers_oq = sample.answers_sq
+            sample.targets_oq = sample.targets_sq
+            sample.gt_answer_index_oq = sample.gt_answer_index_sq
         #print("Sample : {}".format(sample))
 
         return sample

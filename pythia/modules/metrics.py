@@ -310,11 +310,13 @@ class AccuracyConsistency():
         scores_sq = one_hots_sq * one_hots_sq_expected
         scores_oq = one_hots_oq * one_hots_oq_expected
         scores_total = torch.sum(scores_reas.float()) + torch.sum(scores_sq.float()) + torch.sum(scores_oq.float())
+        scores_reas_sub = torch.sum(scores_reas.float()) + torch.sum(scores_sq.float())
 
         accuracy_reas = torch.sum(scores_reas.float()) / expected_reas.size(0)
         accuracy_sq = torch.sum(scores_sq.float()) / expected_sq.size(0)
         accuracy_oq = torch.sum(scores_oq.float()) / expected_oq.size(0)
-        accuracy_total = scores_total/(3*expected_reas.size(0))
+        #accuracy_total = scores_total/(3*expected_reas.size(0))
+        accuracy_total = scores_reas_sub/(2*expected_reas.size(0))
         #pdb.set_trace()
 
         quad1 = (scores_reas.sum(dim=1).bool()*scores_sq.sum(dim=1).bool()).sum()
@@ -348,10 +350,65 @@ class RankAccuracy(BaseMetric):
         quad1, quad2, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
         if quad1 == 0 and quad2 == 0:
             #print("Quad1 and Quad2 have the value of zero")
-            return torch.zeros_like((quad1))
-        return quad1/(quad1 + quad2)
+            consistency = torch.zeros_like((quad1))
+        else:
+            consistency = quad1/(quad1 + quad2)
+        #pdb.set_trace()
+        return consistency
 
-    
+@registry.register_metric("quad1")
+class RankAccuracy(BaseMetric):
+    """Metric for calculating accuracy.
+
+    **Key:** ``accuracy``
+    """
+
+    def __init__(self):
+        super().__init__("quad1")
+
+    def calculate(self, sample_list, model_output, *args, **kwargs):
+        """Calculate accuracy and return it back.
+
+        Args:
+            sample_list (SampleList): SampleList provided by DataLoader for
+                                current iteration
+            model_output (Dict): Dict returned by model.
+
+        Returns:
+            torch.FloatTensor: accuracy.
+
+        """
+        accuracies_consistency = AccuracyConsistency()
+        quad1, quad2, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
+        return quad1
+
+
+@registry.register_metric("quad2")
+class RankAccuracy(BaseMetric):
+    """Metric for calculating accuracy.
+
+    **Key:** ``accuracy``
+    """
+
+    def __init__(self):
+        super().__init__("quad2")
+
+    def calculate(self, sample_list, model_output, *args, **kwargs):
+        """Calculate accuracy and return it back.
+
+        Args:
+            sample_list (SampleList): SampleList provided by DataLoader for
+                                current iteration
+            model_output (Dict): Dict returned by model.
+
+        Returns:
+            torch.FloatTensor: accuracy.
+
+        """
+        accuracies_consistency = AccuracyConsistency()
+        quad1, quad2, accuracy_reas, accuracy_sq, accuracy_oq, accuracy_total = accuracies_consistency.calculate(sample_list, model_output)
+        return quad2    
+
 @registry.register_metric("reasoning_accuracy")
 class RankAccuracy(BaseMetric):
     """Metric for calculating accuracy.

@@ -10,23 +10,14 @@ model_attributes:
     - type: other_accuracy
     - type: total_accuracy
     - type: ranking_accuracy
-    - type: quad1
-    - type: quad2
-
     losses:
     - type: multi
       params:
       - type: logit_bce_reas
-        weight: 0.33
-        params: {}
-      - type: logit_bce_sq
-        weight: 0.33
-        params: {}
-      - type: logit_bce_oq
-        weight: 0.33
+        weight: 1
         params: {}
       - type: distance_importance_loss
-        weight: 0.001
+        weight: 0.0001
         params: {}
     classifier:
       type: logit
@@ -74,7 +65,7 @@ optimizer_attributes:
   type: Adamax
   params:
     eps: 1.0e-08
-    lr: 0.001
+    lr: 0.01
     weight_decay: 0
 training_parameters:
   clip_norm_mode: all
@@ -95,5 +86,5 @@ training_parameters:
   batch_size: 8
   num_workers: 7
   task_size_proportional_sampling: true
-  monitored_metric: reasoning_accuracy
+  monitored_metric: ranking_accuracy
   metric_minimize: false

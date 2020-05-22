@@ -156,6 +156,7 @@ class BaseTrainer:
 
         self.log_interval = self.training_parameters.log_interval
         self.snapshot_interval = self.training_parameters.snapshot_interval
+        self.test_interval = self.training_parameters.test_interval
         self.max_iterations = self.training_parameters.max_iterations
         self.should_clip_gradients = self.training_parameters.clip_gradients
         self.max_epochs = self.training_parameters.max_epochs
@@ -460,6 +461,15 @@ class BaseTrainer:
             if stop is True:
                 self.writer.write("Early stopping activated")
                 should_break = True
+        
+        if self.current_iteration == 22001: 
+            #pdb.set_trace()
+            self.writer.write("Testing time. Running on full test set...") 
+            # test evaluation:
+            report_test, meter_test = self.evaluate(self.test_loader)
+            extra = {"test time": self.snapshot_timer.get_time_since_start()}
+            prefix = "{}: full test".format(report_test.dataset_name)
+            self._summarize_report(meter_test, prefix=prefix, extra=extra)
 
         return should_break
 

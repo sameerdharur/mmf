@@ -16,16 +16,15 @@ task_attributes:
                     val:
                     - coco/detectron_fix_100/fc6/train_val_2014,coco/resnet152/train_val_2014
                     test:
-                    - coco/detectron_fix_100/fc6/test2015,coco/resnet152/test2015
+                    - coco/detectron_fix_100/fc6/train_val_2014,coco/resnet152/train_val_2014
                 imdb_files:
                     train:
-                    - /srv/share/ram/projects/squint_cvpr_oral/code/pythia/data/imdb/vqa/v1_imdb_train2014.npy
+                    #- /srv/share/ram/projects/squint_cvpr_oral/code/pythia/data/imdb/vqa/v1_imdb_train2014.npy
                     - /srv/share/sameer/pythia/data/nlp_project/datasets/train_sub_other_questions.npy
-                    
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/sub_other_questions_train_clean.npy
-                    #- imdb/vqa/imdb_train2014.npy
+                    - imdb/vqa/imdb_train2014.npy
                     val:
-                    - /coc/pskynet1/sameer/pythia/data/nlp_project/datasets/val_sub_other_questions.npy
+                    - /srv/share/ram/projects/squint_cvpr_oral/code/pythia/data/imdb/vqa/imdb_val2014_reas.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/sub_other_questions_train_mini.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/val_sub_other_questions.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/reasoning_questions_val_split.npy
@@ -34,6 +33,7 @@ task_attributes:
                     #- /srv/share/purva/Assignments/nlp/project/data/final_train.npy
                     test:
                     - /coc/pskynet1/sameer/pythia/data/nlp_project/datasets/val_sub_other_questions.npy
+                    #- /srv/share/sameer/pythia/test_mini.npy
                 features_max_len: 100
                 processors:
                   text_processor:

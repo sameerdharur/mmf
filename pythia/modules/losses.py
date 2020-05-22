@@ -36,7 +36,7 @@ from torch.nn.utils.rnn import pack_padded_sequence
 
 from pythia.common.registry import registry
 
-@registry.register_loss("sq_loss")
+@registry.register_loss("distance_importance_loss")
 class SubQuestionLoss(nn.Module):
     def __init__(self):
             super().__init__()
@@ -55,9 +55,9 @@ class SubQuestionLoss(nn.Module):
 
         sub_loss = torch.mean(model_output['distance_reas_sub'])
         other_loss = torch.mean(model_output['distance_reas_other'])
-        loss = torch.max((sub_loss - other_loss), torch.zeros_like(sub_loss))
+        #loss = torch.max((sub_loss - other_loss), torch.zeros_like(sub_loss))
         #pdb.set_trace()
-        #loss = sub_loss 
+        loss = sub_loss 
         
         return loss * sample_list["targets"].size(1)
 
@@ -188,7 +188,7 @@ class PythiaLoss(nn.Module):
         return {"{}/{}".format(sample_list.dataset_type, self.name): loss}
 
 
-@registry.register_loss("logit_bce")
+@registry.register_loss("logit_bce_reas")
 class LogitBinaryCrossEntropy(nn.Module):
     """Returns Binary Cross Entropy for logits.
 
@@ -212,6 +212,65 @@ class LogitBinaryCrossEntropy(nn.Module):
         """
         scores = model_output["scores"]
         targets = sample_list["targets"]
+        loss = F.binary_cross_entropy_with_logits(scores, targets, reduction="mean")
+        #pdb.set_trace()
+
+        return loss * targets.size(1)
+
+@registry.register_loss("logit_bce_sq")
+class LogitBinaryCrossEntropy(nn.Module):
+    """Returns Binary Cross Entropy for logits.
+
+    Attention:
+        `Key`: logit_bce
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, sample_list, model_output):
+        """Calculates and returns the binary cross entropy for logits
+
+        Args:
+            sample_list (SampleList): SampleList containing `targets` attribute.
+            model_output (Dict): Model output containing `scores` attribute.
+
+        Returns:
+            torch.FloatTensor: Float value for loss.
+
+        """
+        scores = model_output["scores_sq"]
+        targets = sample_list["targets_sq"]
+        loss = F.binary_cross_entropy_with_logits(scores, targets, reduction="mean")
+        #pdb.set_trace()
+
+        return loss * targets.size(1)
+
+
+@registry.register_loss("logit_bce_oq")
+class LogitBinaryCrossEntropy(nn.Module):
+    """Returns Binary Cross Entropy for logits.
+
+    Attention:
+        `Key`: logit_bce
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, sample_list, model_output):
+        """Calculates and returns the binary cross entropy for logits
+
+        Args:
+            sample_list (SampleList): SampleList containing `targets` attribute.
+            model_output (Dict): Model output containing `scores` attribute.
+
+        Returns:
+            torch.FloatTensor: Float value for loss.
+
+        """
+        scores = model_output["scores_oq"]
+        targets = sample_list["targets_oq"]
         loss = F.binary_cross_entropy_with_logits(scores, targets, reduction="mean")
         #pdb.set_trace()
 
