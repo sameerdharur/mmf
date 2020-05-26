@@ -12,6 +12,8 @@ model_attributes:
     - type: ranking_accuracy
     - type: quad1
     - type: quad2
+    - type: quad3
+    - type: quad4
 
     losses:
     - type: multi

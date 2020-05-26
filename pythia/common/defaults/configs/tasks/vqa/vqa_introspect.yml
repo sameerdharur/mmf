@@ -24,7 +24,8 @@ task_attributes:
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/sub_other_questions_train_clean.npy
                     - imdb/vqa/imdb_train2014.npy
                     val:
-                    - /srv/share/ram/projects/squint_cvpr_oral/code/pythia/data/imdb/vqa/imdb_val2014_reas.npy
+                    - /srv/share/sameer/pythia_results/small_datasets/split_9.npy
+                    #- /srv/share/ram/projects/squint_cvpr_oral/code/pythia/data/imdb/vqa/imdb_val2014_reas.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/sub_other_questions_train_mini.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/val_sub_other_questions.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/reasoning_questions_val_split.npy

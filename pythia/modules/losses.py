@@ -61,6 +61,31 @@ class SubQuestionLoss(nn.Module):
         
         return loss * sample_list["targets"].size(1)
 
+@registry.register_loss("mse_importance_loss")
+class SubQuestionLoss(nn.Module):
+    def __init__(self):
+            super().__init__()
+
+    def forward(self, sample_list, model_output):
+        """Calculates and returns the binary cross entropy for logits
+
+        Args:
+            sample_list (SampleList): SampleList containing `targets` attribute.
+            model_output (Dict): Model output containing `scores` attribute.
+
+        Returns:
+            torch.FloatTensor: Float value for loss.
+
+        """
+        loss_crit = nn.MSELoss()
+        #pdb.set_trace()
+        reas = model_output["importance_vectors_reas"]
+        sub = model_output["importance_vectors_sq"]
+        loss = loss_crit(reas, sub)
+        
+        return loss * sample_list["targets"].size(1)
+
+
 class Losses(nn.Module):
     """``Losses`` acts as an abstraction for instantiating and calculating
     losses. ``BaseModel`` instantiates this class based on the `losses`

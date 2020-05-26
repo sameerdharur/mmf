@@ -260,6 +260,7 @@ class PythiaIntrospect(BaseModel):
 
             # Encode the features
             encoded_feature = feature_encoder(feature)
+            pdb.set_trace()
 
             # Get all of the feature embeddings
             list_attr = attr + "_feature_embeddings_list"
@@ -315,6 +316,7 @@ class PythiaIntrospect(BaseModel):
             #self.importance_vectors_reas.append(self.question_embedding)
             #pdb.set_trace()
             self.importance_vectors_reas = importance_vectors_cam
+            model_output["importance_vectors_reas"] = importance_vectors_cam
             #self.importance_vectors_reas.append(torch.cat((importance_vectors_cam, self.question_embedding), 1))
         elif question == "sq":
             #self.importance_vectors_sq = []
@@ -327,6 +329,7 @@ class PythiaIntrospect(BaseModel):
             importance_vectors_cam = grads * self.joint_embedding_sq
             #self.importance_vectors_sq.append(self.question_embedding_sq)
             self.importance_vectors_sq = importance_vectors_cam
+            model_output["importance_vectors_sq"] = importance_vectors_cam
             #self.importance_vectors_sq.append(torch.cat((importance_vectors_cam, self.question_embedding_sq), 1))
         elif question == "oq":
             #self.importance_vectors_oq = []
@@ -339,6 +342,7 @@ class PythiaIntrospect(BaseModel):
             importance_vectors_cam = grads * self.joint_embedding_oq
             #self.importance_vectors_oq.append(self.question_embedding_oq)
             self.importance_vectors_oq = importance_vectors_cam
+            model_output["importance_vectors_oq"] = importance_vectors_cam
             #self.importance_vectors_oq.append(torch.cat((importance_vectors_cam, self.question_embedding_oq), 1))
 
     def cosine_distance(self, vec_1, vec_2):
