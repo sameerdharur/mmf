@@ -28,10 +28,12 @@ class VQAIntrospectDataset(BaseDataset):
         self.imdb_file = self._get_absolute_path(self.imdb_file)
         self.dataset = dataset_type
 
-        if dataset_type == 'train':
-            if 'imdb_train2014.npy' in self.imdb_file:
+        if dataset_type == 'train' or dataset_type == 'val':
+            #pdb.set_trace()
+            if 'imdb_train2014.npy' in self.imdb_file or 'imdb_val2014.npy' in self.imdb_file or 'imdb_vqa2014_val_reasoning_questions' in self.imdb_file:
+                print("DATASET : {}".format(self.imdb_file))
                 self.dataset = 'train_vqa'
-            elif 'train_sub_other_questions.npy' in self.imdb_file:
+            elif 'train_v2.npy' in self.imdb_file or 'train_binary.npy' in self.imdb_file:
                 self.dataset = 'train_introspect'
 
         self.imdb = ImageDatabase(self.imdb_file)
@@ -212,7 +214,8 @@ class VQAIntrospectDataset(BaseDataset):
         #print("Dataset type : {}".format(current_sample.dataset_name))
         #print("current sample : {}".format(current_sample))
         #pdb.set_trace()
-        #print("Current sample : {}".format(current_sample))
+        #if self.dataset == 'train_introspect' or self.dataset == 'vqa_train':
+        #    print("Current sample : {}".format(current_sample))
 
         return current_sample
 
@@ -243,7 +246,10 @@ class VQAIntrospectDataset(BaseDataset):
         return sample
 
     def add_answer_info(self, sample_info, sample):
+        #pdb.set_trace()
+        #print(sample_info)
         if "answers" in sample_info:
+            #print("ANSWERS")
             answers = sample_info["answers"]
             answer_processor_arg = {"answers": answers}
 
@@ -255,6 +261,7 @@ class VQAIntrospectDataset(BaseDataset):
             sample.gt_answer_index = processed_soft_copy_answers["answers_indices"][0]
 
         if "answers_sq" in sample_info:
+            #print("ANSWERS SQ")
             answers = sample_info["answers_sq"]
             answer_processor_arg = {"answers": answers}
 
@@ -264,7 +271,9 @@ class VQAIntrospectDataset(BaseDataset):
             sample.answers_sq = processed_soft_copy_answers["answers"]
             sample.targets_sq = processed_soft_copy_answers["answers_scores"]
             sample.gt_answer_index_sq = processed_soft_copy_answers["answers_indices"][0]
-        if "sub_answers" in sample_info:
+            #print(sample)
+        elif "sub_answers" in sample_info:
+            #print("VAL")
             answers = sample_info["sub_answers"]
             answer_processor_arg = {"answers": answers}
             if self.use_ocr:
@@ -274,6 +283,7 @@ class VQAIntrospectDataset(BaseDataset):
             sample.targets_sq = processed_soft_copy_answers["answers_scores"]
             sample.gt_answer_index_sq = processed_soft_copy_answers["answers_indices"][0]
         else:
+            #print("VAL")
             sample.answers_sq = sample.answers
             sample.targets_sq = sample.targets
             sample.gt_answer_index_sq = sample.gt_answer_index
@@ -292,6 +302,7 @@ class VQAIntrospectDataset(BaseDataset):
             sample.targets_oq = sample.targets_sq
             sample.gt_answer_index_oq = sample.gt_answer_index_sq
         #print("Sample : {}".format(sample))
+        #print("Sample info : {}".format(sample_info))
 
         return sample
 

@@ -1,5 +1,5 @@
 includes:
-- common/defaults/configs/tasks/vqa/vqa_introspect.yml
+- common/defaults/configs/tasks/vqa/vqa2.yml
 model_attributes:
   pythia: &pythia
     model_data_dir: ../data/

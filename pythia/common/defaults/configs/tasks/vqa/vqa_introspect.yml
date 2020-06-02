@@ -20,20 +20,23 @@ task_attributes:
                 imdb_files:
                     train:
                     #- /srv/share/ram/projects/squint_cvpr_oral/code/pythia/data/imdb/vqa/v1_imdb_train2014.npy
-                    - /srv/share/sameer/pythia/data/nlp_project/datasets/train_sub_other_questions.npy
+                    - /srv/share/sameer/pythia/data/nlp_project/datasets/train_binary.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/sub_other_questions_train_clean.npy
                     - imdb/vqa/imdb_train2014.npy
                     val:
-                    - /srv/share/sameer/pythia_results/small_datasets/split_9.npy
-                    #- /srv/share/ram/projects/squint_cvpr_oral/code/pythia/data/imdb/vqa/imdb_val2014_reas.npy
+                    #- /srv/share/sameer/pythia_results/small_datasets/split_9.npy
+                    #- /srv/share/sameer/pythia/data/nlp_project/datasets/val_v2.npy
+                    #- /coc/pskynet1/ram/projects/squint_cvpr_oral/code/pythia/data/imdb/vqa/imdb_vqa_introspect1.0_val.npy
+                    - /srv/share/sameer/pythia/data/nlp_project/datasets/small_datasets/set_1.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/sub_other_questions_train_mini.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/val_sub_other_questions.npy
                     #- /srv/share/sameer/pythia/data/nlp_project/datasets/reasoning_questions_val_split.npy
-                    #- imdb/vqa/imdb_val2014.npy
+                    #- /coc/pskynet1/ram/projects/squint_cvpr_oral/code/pythia/data/imdb/vqa/imdb_vqa2014_val_reasoning_questions.npy
+                    #- /srv/share/ram/projects/squint_cvpr_oral/code/pythia/data/imdb/vqa/imdb_val2014.npy
                     #- /srv/share/purva/Assignments/nlp/project/data/final_val.npy
                     #- /srv/share/purva/Assignments/nlp/project/data/final_train.npy
                     test:
-                    - /coc/pskynet1/sameer/pythia/data/nlp_project/datasets/val_sub_other_questions.npy
+                    - /srv/share/sameer/pythia/data/nlp_project/datasets/val_v2.npy
                     #- /srv/share/sameer/pythia/test_mini.npy
                 features_max_len: 100
                 processors:

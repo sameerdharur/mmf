@@ -260,7 +260,7 @@ class PythiaIntrospect(BaseModel):
 
             # Encode the features
             encoded_feature = feature_encoder(feature)
-            pdb.set_trace()
+            #pdb.set_trace()
 
             # Get all of the feature embeddings
             list_attr = attr + "_feature_embeddings_list"
