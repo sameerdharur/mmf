@@ -16,8 +16,7 @@ The code for this project is in three parts :
 
 - To train a model (with the default hyperparameters), run the following command :
 
-```bash
-python tools/run.py --tasks vqa --datasets vqa_introspect --model pythia_introspect --config configs/vqa/vqa2/pythia_introspect.yml --resume_file data/models/pythia.pth```
+```bash python tools/run.py --tasks vqa --datasets vqa_introspect --model pythia_introspect --config configs/vqa/vqa2/pythia_introspect.yml --resume_file data/models/pythia.pth```
 
 - To evaluate a trained model, run the following command replacing ```pythia.pth``` with the name of the model to be evaluated :
 
