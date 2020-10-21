@@ -1,4 +1,4 @@
-Code for the paper ```SOrTing VQA Models : Contrastive Gradient Learning for Improved Consistency``` : https://arxiv.org/abs/2010.10038
+Code for the paper ```SOrTing VQA Models : Contrastive Gradient Learning for Improved Consistency``` - https://arxiv.org/abs/2010.10038
 
 Replicating the experiments of the paper broadly involves two parts :
 
