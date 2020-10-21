@@ -1,4 +1,4 @@
-The code for this project is in three parts :
+The code for this project is in two parts :
 
 # 1. VQA experiments in Pythia.
 
@@ -30,5 +30,3 @@ python tools/run.py --tasks vqa --datasets vqa2 --model pythia --config configs/
 - The validation script could be executed with the trained model to generate the Grad-CAM vectors for each of the three types of questions - reasoning, sub-questions and irrelevant questions. These are then written to a CSV file. 
 
 - Once these CSV files are generated, run the Jupyter notebook ```similarity_ranking.ipynb``` which contains a step-by-step walkthrough of the code to compute similarity vectors and the ranking metrics.
-
-# 3. Visual grounding analysis.
