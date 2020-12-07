@@ -73,9 +73,7 @@ class ImageDatabase(torch.utils.data.Dataset):
         data = self.data[idx + self.start_idx]
 
         # Hacks for older IMDBs
-        #pdb.set_trace()
         if "answers" not in data:
-            #print("Answers in data")
             if "all_answers" in data and "valid_answers" not in data:
                 data["answers"] = data["all_answers"]
             if "valid_answers" in data:
@@ -89,11 +87,7 @@ class ImageDatabase(torch.utils.data.Dataset):
 
         # TODO: Later clean up VizWIz IMDB from copy tokens
         if "answers" in data and data["answers"][-1] == "<copy>":
-            #print("Answers not in data")
             data["answers"] = data["answers"][:-1]
-        
-        #pdb.set_trace()
-        #print("Data : {}".format(data))
 
         return data
 

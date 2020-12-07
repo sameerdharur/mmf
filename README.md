@@ -10,9 +10,9 @@ Replicating the experiments of the paper broadly involves two parts :
 
 - The VQA Introspect dataset is accessible here : https://www.microsoft.com/en-us/research/project/vqa-introspect/
 
-- As a sample, we have attached a subset of the train and validation splits of the data which can be used for these experiments.
+- For our experiments, we used the dataset in the ```.npy``` format whose converted files can be found [here](https://drive.google.com/file/d/1PItvD8FkQoLAgEwItSwQ0Fzo0YbxvXs5/view?usp=sharing). Copy the train and validation files from here into the same folder containing the VQA dataset files (i.e, ```imdb/vqa```) installed from the above setup. 
 
-- The locations to the data can be specified in ```pythia/common/defaults/configs/tasks/vqa/vqa_introspect.yml```
+- Alternatively, the locations to the data can be specified in ```pythia/common/defaults/configs/tasks/vqa/vqa_introspect.yml```
 
 - The hyperparameters for the model can be changed in ```configs/vqa/vqa2/pythia_introspect.yml```
 
@@ -27,6 +27,9 @@ python tools/run.py --tasks vqa --datasets vqa_introspect --model pythia_introsp
 ```bash
 python tools/run.py --tasks vqa --datasets vqa2 --model pythia --config configs/vqa/vqa2/pythia.yml --resume_file data/models/pythia.pth --run_type val
 ```
+
+- The final model reported in the paper can be downloaded [here](https://drive.google.com/file/d/18SCI6CvOVlvLlevxvka_vlQAeTKqGqao/view?usp=sharing).
+
 # 2. Ranking and Similarity analysis.
 
 - The validation script could be executed with the trained model to generate the Grad-CAM vectors for each of the three types of questions - reasoning, sub-questions and irrelevant questions. These are then written to a CSV file. 

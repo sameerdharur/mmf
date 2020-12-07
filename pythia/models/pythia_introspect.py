@@ -291,59 +291,44 @@ class PythiaIntrospect(BaseModel):
             self.question_embedding_sq = layer_model.question_embedding
         elif args[2] == "other_question":
             self.question_embedding_oq = layer_model.question_embedding
-        #pdb.set_trace()
-        #self.combine_layer = self.layer
-        #joint_embedding = self.combine_layer(feature_embeddings)
-        #pdb.set_trace()
+
         return joint_embeddings
-        #return getattr(self, layer)(*feature_embeddings)
+
 
     def calculate_logits(self, joint_embedding, **kwargs):
         return self.classifier(joint_embedding)
 
     def compute_grad_cam(self, sample_list, model_output, question=None):
-            #pdb.set_trace()
-        #pdb.set_trace()
+
         if question == "main":
-            #self.importance_vectors_reas = []
             scores = model_output['scores']
             classes = sample_list['gt_answer_index']
             classes_one_hot = torch.zeros_like(scores)
             classes_one_hot[range(classes_one_hot.shape[0]), classes] = 1
-            #grads = torch.autograd.grad(outputs = scores, inputs = self.joint_embedding, grad_outputs = classes_one_hot, create_graph=True)[0].to(self.device)
             grads = torch.autograd.grad(outputs = scores, inputs = self.joint_embedding, grad_outputs = classes_one_hot, create_graph=True)[0]
             importance_vectors_cam = grads * self.joint_embedding
-            #self.importance_vectors_reas.append(self.question_embedding)
-            #pdb.set_trace()
             self.importance_vectors_reas = importance_vectors_cam
             model_output["importance_vectors_reas"] = importance_vectors_cam
-            #self.importance_vectors_reas.append(torch.cat((importance_vectors_cam, self.question_embedding), 1))
+
         elif question == "sq":
-            #self.importance_vectors_sq = []
             scores = model_output['scores_sq']
             classes = sample_list['gt_answer_index_sq']
             classes_one_hot = torch.zeros_like(scores)
             classes_one_hot[range(classes_one_hot.shape[0]), classes] = 1
-            #grads = torch.autograd.grad(outputs = scores, inputs = self.joint_embedding_sq, grad_outputs = classes_one_hot, create_graph=True)[0].to(self.device)
             grads = torch.autograd.grad(outputs = scores, inputs = self.joint_embedding_sq, grad_outputs = classes_one_hot, create_graph=True)[0]
             importance_vectors_cam = grads * self.joint_embedding_sq
-            #self.importance_vectors_sq.append(self.question_embedding_sq)
             self.importance_vectors_sq = importance_vectors_cam
             model_output["importance_vectors_sq"] = importance_vectors_cam
-            #self.importance_vectors_sq.append(torch.cat((importance_vectors_cam, self.question_embedding_sq), 1))
+
         elif question == "oq":
-            #self.importance_vectors_oq = []
             scores = model_output['scores_oq']
             classes = sample_list['gt_answer_index_oq']
             classes_one_hot = torch.zeros_like(scores)
             classes_one_hot[range(classes_one_hot.shape[0]), classes] = 1
-            #grads = torch.autograd.grad(outputs = scores, inputs = self.joint_embedding_oq, grad_outputs = classes_one_hot, create_graph=True)[0].to(self.device)
             grads = torch.autograd.grad(outputs = scores, inputs = self.joint_embedding_oq, grad_outputs = classes_one_hot, create_graph=True)[0]
             importance_vectors_cam = grads * self.joint_embedding_oq
-            #self.importance_vectors_oq.append(self.question_embedding_oq)
             self.importance_vectors_oq = importance_vectors_cam
             model_output["importance_vectors_oq"] = importance_vectors_cam
-            #self.importance_vectors_oq.append(torch.cat((importance_vectors_cam, self.question_embedding_oq), 1))
 
     def cosine_distance(self, vec_1, vec_2):
         batched_distance_vector = []
@@ -362,9 +347,9 @@ class PythiaIntrospect(BaseModel):
 
 
     def forward(self, sample_list):
-        #pdb.set_trace()
+
         if sample_list.dataset_name == 'train_vqa':
-            #pdb.set_trace()
+
             sample_list.text = self.word_embedding(sample_list.text)
             text_embedding_total = self.process_text_embedding(sample_list)
 
@@ -378,7 +363,7 @@ class PythiaIntrospect(BaseModel):
             joint_embedding = self.combine_embeddings(
                 ["image", "text"], [image_embedding_total, text_embedding_total], "main"
             )
-        #pdb.set_trace()
+
 
             self.joint_embedding = joint_embedding
 
@@ -407,7 +392,6 @@ class PythiaIntrospect(BaseModel):
             joint_embedding = self.combine_embeddings(
             ["image", "text"], [image_embedding_total, text_embedding_total], "main"
             )
-        #pdb.set_trace()
 
             self.joint_embedding = joint_embedding
 
@@ -461,7 +445,6 @@ class PythiaIntrospect(BaseModel):
             joint_embedding = self.combine_embeddings(
             ["image", "text"], [image_embedding_total, text_embedding_total], "main"
             )
-        #pdb.set_trace()
 
             self.joint_embedding = joint_embedding
 
@@ -499,25 +482,6 @@ class PythiaIntrospect(BaseModel):
             self.compute_grad_cam(sample_list, model_output, question="oq")
 
             self.compute_distances(sample_list, model_output)
-
-
-        #self.compute_grad_cam()
-        #pdb.set_trace()
-
-        #image_embedding_total, _ = self.process_feature_embedding(
-        #    "image", sample_list, text_embedding_total
-        #)
-
-        #if self.inter_model is not None:
-        #    image_embedding_total = self.inter_model(image_embedding_total)
-
-        #joint_embedding = self.combine_embeddings(
-        #    ["image", "text"], [image_embedding_total, text_embedding_total]
-        #)
-
-        #self.joint_embedding = joint_embedding
-
-        #model_output = {"scores": self.calculate_logits(joint_embedding)}
 
         return model_output
 

@@ -17,7 +17,6 @@ class VQAIntrospectDataset(BaseDataset):
     def __init__(self, dataset_type, imdb_file_index, config, *args, **kwargs):
         super().__init__("vqa_introspect", dataset_type, config)
         imdb_files = self.config.imdb_files
-        #pdb.set_trace()
         if dataset_type not in imdb_files:
             raise ValueError(
                 "Dataset type {} is not present in "
@@ -29,11 +28,9 @@ class VQAIntrospectDataset(BaseDataset):
         self.dataset = dataset_type
 
         if dataset_type == 'train' or dataset_type == 'val':
-            #pdb.set_trace()
             if 'imdb_train2014.npy' in self.imdb_file or 'imdb_val2014.npy' in self.imdb_file or 'imdb_vqa2014_val_reasoning_questions' in self.imdb_file:
-                print("DATASET : {}".format(self.imdb_file))
                 self.dataset = 'train_vqa'
-            elif 'train_v2.npy' in self.imdb_file or 'train_binary.npy' in self.imdb_file:
+            elif 'train_introspect.npy' in self.imdb_file or 'train_binary.npy' in self.imdb_file:
                 self.dataset = 'train_introspect'
 
         self.imdb = ImageDatabase(self.imdb_file)
@@ -52,8 +49,6 @@ class VQAIntrospectDataset(BaseDataset):
             self._return_info = self.config.get("return_info", True)
 
             all_image_feature_dirs = self.config.image_features[dataset_type]
-            #print("IMDB file index : {}".format(imdb_file_index))
-            #pdb.set_trace()
             curr_image_features_dir = all_image_feature_dirs[imdb_file_index]
             curr_image_features_dir = curr_image_features_dir.split(",")
             curr_image_features_dir = self._get_absolute_path(curr_image_features_dir)
@@ -118,7 +113,6 @@ class VQAIntrospectDataset(BaseDataset):
             processed_question = self.text_processor(text_processor_argument)
             current_sample.text_len = torch.tensor(
             len(sample_info["question_tokens"]), dtype=torch.int
-            #len(sample_info["main_question_tokens"]), dtype=torch.int
             )
             current_sample.text = processed_question["text"]
             current_sample.question_text = sample_info["question_str"]
@@ -126,13 +120,11 @@ class VQAIntrospectDataset(BaseDataset):
             current_sample.text_oq = current_sample.text
             current_sample.reasoning_question = sample_info["question_str"]
             current_sample.reasoning_answer = sample_info["answers"][0]
-            #current_sample.image_url = ""
             current_sample.sub_question = sample_info["question_str"]
             current_sample.other_question = sample_info["question_str"]
 
         elif self.dataset == 'train_introspect' or self.dataset == 'test':
            
-            #text_processor_argument = {"text": sample_info["question"]}
             text_processor_argument = {"text": sample_info["main_question_str"]}
             processed_question = self.text_processor(text_processor_argument)
             current_sample.text = processed_question["text"]
@@ -149,17 +141,14 @@ class VQAIntrospectDataset(BaseDataset):
             current_sample.question_text = sample_info["main_question_str"]
             current_sample.reasoning_question = sample_info["main_question_str"]
             current_sample.reasoning_answer = sample_info["main_answer_str"][0]
-            #current_sample.image_url = sample_info["image_path"]
             current_sample.sub_question = sample_info["sub_question_str"]
             current_sample.other_question = sample_info["other_question_str"]
             current_sample.text_len = torch.tensor(
-            #len(sample_info["question_tokens"]), dtype=torch.int
             len(sample_info["main_question_tokens"]), dtype=torch.int
             )
 
         else:
             
-            #text_processor_argument = {"text": sample_info["question"]}
             text_processor_argument = {"text": sample_info["question_str"]}
             processed_question = self.text_processor(text_processor_argument)
             current_sample.text = processed_question["text"]
@@ -178,11 +167,9 @@ class VQAIntrospectDataset(BaseDataset):
             current_sample.question_text = sample_info["question_str"]
             current_sample.reasoning_question = sample_info["question_str"]
             current_sample.reasoning_answer = sample_info["answers"][0]
-            #current_sample.image_url = sample_info["image_path"]
             current_sample.sub_question = sample_info["sub_question_str"]
             current_sample.other_question = sample_info["sub_question_str"]
             current_sample.text_len = torch.tensor(
-            #len(sample_info["question_tokens"]), dtype=torch.int
             len(sample_info["question_tokens"]), dtype=torch.int)
 
     
@@ -197,11 +184,6 @@ class VQAIntrospectDataset(BaseDataset):
         else:
             current_sample.image_id = sample_info["image_id"]
 
-        #current_sample.text_len = torch.tensor(
-            #len(sample_info["question_tokens"]), dtype=torch.int
-        #    len(sample_info["main_question_tokens"]), dtype=torch.int
-        #)
-
         if self._use_features is True:
             features = self.features_db[idx]
             current_sample.update(features)
@@ -211,11 +193,6 @@ class VQAIntrospectDataset(BaseDataset):
         # Depending on whether we are using soft copy this can add
         # dynamic answer space
         current_sample = self.add_answer_info(sample_info, current_sample)
-        #print("Dataset type : {}".format(current_sample.dataset_name))
-        #print("current sample : {}".format(current_sample))
-        #pdb.set_trace()
-        #if self.dataset == 'train_introspect' or self.dataset == 'vqa_train':
-        #    print("Current sample : {}".format(current_sample))
 
         return current_sample
 
@@ -246,10 +223,8 @@ class VQAIntrospectDataset(BaseDataset):
         return sample
 
     def add_answer_info(self, sample_info, sample):
-        #pdb.set_trace()
-        #print(sample_info)
+
         if "answers" in sample_info:
-            #print("ANSWERS")
             answers = sample_info["answers"]
             answer_processor_arg = {"answers": answers}
 
@@ -261,7 +236,6 @@ class VQAIntrospectDataset(BaseDataset):
             sample.gt_answer_index = processed_soft_copy_answers["answers_indices"][0]
 
         if "answers_sq" in sample_info:
-            #print("ANSWERS SQ")
             answers = sample_info["answers_sq"]
             answer_processor_arg = {"answers": answers}
 
@@ -271,9 +245,7 @@ class VQAIntrospectDataset(BaseDataset):
             sample.answers_sq = processed_soft_copy_answers["answers"]
             sample.targets_sq = processed_soft_copy_answers["answers_scores"]
             sample.gt_answer_index_sq = processed_soft_copy_answers["answers_indices"][0]
-            #print(sample)
         elif "sub_answers" in sample_info:
-            #print("VAL")
             answers = sample_info["sub_answers"]
             answer_processor_arg = {"answers": answers}
             if self.use_ocr:
@@ -283,7 +255,6 @@ class VQAIntrospectDataset(BaseDataset):
             sample.targets_sq = processed_soft_copy_answers["answers_scores"]
             sample.gt_answer_index_sq = processed_soft_copy_answers["answers_indices"][0]
         else:
-            #print("VAL")
             sample.answers_sq = sample.answers
             sample.targets_sq = sample.targets
             sample.gt_answer_index_sq = sample.gt_answer_index
@@ -301,8 +272,6 @@ class VQAIntrospectDataset(BaseDataset):
             sample.answers_oq = sample.answers_sq
             sample.targets_oq = sample.targets_sq
             sample.gt_answer_index_oq = sample.gt_answer_index_sq
-        #print("Sample : {}".format(sample))
-        #print("Sample info : {}".format(sample_info))
 
         return sample
 

@@ -259,20 +259,13 @@ class BaseTrainer:
             self.lr_scheduler.step(self.current_iteration)
     
     def compute_grad_cam(self, report, model_output):
-        #pdb.set_trace()
         importance_vectors = []
         scores = model_output['scores']
-        #classes = scores.argmax(dim=1)
         classes = report['gt_answer_index']
-        #pdb.set_trace()
         classes_one_hot = torch.zeros_like(scores)
         classes_one_hot[range(classes_one_hot.shape[0]), classes] = 1
         grads = torch.autograd.grad(outputs = scores, inputs = self.model.joint_embedding, grad_outputs = classes_one_hot, create_graph=True)[0].to(self.device)
         importance_vectors_cam = grads * self.model.joint_embedding
-        #importance_vectors_cam = importance_vectors_cam.type(torch.FloatTensor)
-        #report['text'] = report['text'].type(torch.FloatTensor)
-        #importance_vectors.append(report['text'])
-        #pdb.set_trace()
         importance_vectors.append(self.model.question_embedding)
         importance_vectors.append(importance_vectors_cam)
         importance_vectors.append(torch.cat((importance_vectors_cam, self.model.question_embedding), 1))
@@ -280,42 +273,19 @@ class BaseTrainer:
         return importance_vectors
     
     def store_importance_vectors(self, report, importance_vectors):
-        #importance_scores = defaultdict(list)
-        #importance_scores = defaultdict(defaultdict)
-        #write_to_json = defaultdict(list)
-        #for idx in range(len(report['image_id'])):
-            #importance_scores[str(report['image_id'][idx].item())].append({str(report['question_id'][idx].item()):[report['question_text'][idx],importance_vectors[idx].tolist()]})
-            #importance_scores[str(report['image_id'][idx].item())].append({str(report['question_id'][idx].item()):[report['question_text'][idx],importance_vectors[idx].tolist()]})
         with open("importance_scores_other_questions_2.json", "r+") as file:
-            #data = importance_scores
             data = json.load(file)
             data_df = defaultdict(list, data)
-            #pdb.set_trace()
             for idx in range(len(report['image_id'])):
                 data_df[str(report['image_id'][idx].item())].append({str(report['question_id'][idx].item()):[report['question_text'][idx],importance_vectors[idx].tolist()]})
-            #for key, value in importance_scores.items():
-            #    if key in data:
-                    #importance_scores[key].append(data[key])
-            #data.update(importance_scores)
-            #pdb.set_trace()
             file.seek(0)
             json.dump(dict(data_df), file)
-        #pdb.set_trace()
         
     def store_importance_vectors_csv(self, report, importance_vectors):
-        #importance_scores = defaultdict(list)
-        #importance_scores = defaultdict(defaultdict)
-        #write_to_json = defaultdict(list)
-        #for idx in range(len(report['image_id'])):
-            #importance_scores[str(report['image_id'][idx].item())].append({str(report['question_id'][idx].item()):[report['question_text'][idx],importance_vectors[idx].tolist()]})
-            #importance_scores[str(report['image_id'][idx].item())].append({str(report['question_id'][idx].item()):[report['question_text'][idx],importance_vectors[idx].tolist()]})
         predicted_answer_ids = report['scores'].argmax(dim=1)
         with open("/srv/share/sameer/pythia_results/clean_val_reas.csv", "a+", newline='') as file:
-            #data = importance_scores
-            #pdb.set_trace()
             answer_processor = registry.get("vqa_introspect_answer_processor")
             for idx in range(len(report['image_id'])):
-                #pdb.set_trace()
                 predicted_answer = answer_processor.idx2word(predicted_answer_ids[idx])
                 row_to_append = [str(report['image_id'][idx].item()), report['image_url'][idx], report['question_id'][idx].item(), report['reasoning_question'][idx], report['reasoning_answer'][idx], report['question_text'][idx], predicted_answer, report['answers'][idx][0], importance_vectors[0][idx].tolist(), importance_vectors[1][idx].tolist(), importance_vectors[2][idx].tolist()]
                 csv_writer = writer(file)
@@ -325,21 +295,8 @@ class BaseTrainer:
         
         prepared_batch = self.task_loader.prepare_batch(batch)
         self.profile("Batch prepare time")
-        # Arguments should be a dict at this point
         model_output = self.model(prepared_batch)
-        #pdb.set_trace()
-        #importance_vectors = self.compute_grad_cam(model_output)
-        #print("Imp vector shape : {}".format(importance_vectors.shape))
         report = Report(prepared_batch, model_output)
-        #pdb.set_trace()
-        #vqa_dataset = VQA2Dataset("val", 0, self.config)
-        #pdb.set_trace()
-
-        #importance_vectors = self.compute_grad_cam(report, model_output)
-        #self.store_importance_vectors_csv(report, importance_vectors)
-        #del importance_vectors
-        #torch.cuda.empty_cache()
-        #pdb.set_trace()
         self.profile("Forward time")
 
         return report
@@ -424,7 +381,6 @@ class BaseTrainer:
             extra=extra,
             prefix=report.dataset_name,
         )
-        #pdb.set_trace()
 
         should_break = self._try_full_validation()
 
@@ -435,14 +391,12 @@ class BaseTrainer:
         
 
         if self.current_iteration % self.snapshot_interval == 0 or force:
-            #pdb.set_trace()
             self.writer.write("Evaluation time. Running on full validation set...")
             # Validation and Early stopping
             # Create a new meter for this case
             report, meter = self.evaluate(self.val_loader)
 
             extra = {"validation time": self.snapshot_timer.get_time_since_start()}
-            #pdb.set_trace()
 
             stop = self.early_stopping(self.current_iteration, meter)
             stop = bool(broadcast_scalar(stop, src=0, device=self.device))
@@ -463,7 +417,6 @@ class BaseTrainer:
                 should_break = True
         
         if self.current_iteration == 22001: 
-            #pdb.set_trace()
             self.writer.write("Testing time. Running on full test set...") 
             # test evaluation:
             report_test, meter_test = self.evaluate(self.test_loader)
@@ -475,10 +428,8 @@ class BaseTrainer:
 
     def evaluate(self, loader, use_tqdm=False, single_batch=False):
         meter = Meter()
-        #pdb.set_trace()
 
         for batch in tqdm(loader, disable=not use_tqdm):
-            #pdb.set_trace()
             report = self._forward_pass(batch)
             self._update_meter(report, meter, eval_mode=True)
 
@@ -510,7 +461,6 @@ class BaseTrainer:
         self.writer.write(meter.delimiter.join(print_str))
 
     def inference(self):
-        #pdb.set_trace()
         if "val" in self.run_type:
             self._inference_run("val")
 
