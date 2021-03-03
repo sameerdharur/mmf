@@ -1,5 +1,16 @@
 Code for the paper ```SOrTing VQA Models : Contrastive Gradient Learning for Improved Consistency``` - https://arxiv.org/abs/2010.10038
 
+If you use this code, please consider citing the paper as:
+
+```
+@article{dharur2020sort,
+  title={SOrT-ing VQA Models: Contrastive Gradient Learning for Improved Consistency},
+  author={Dharur, Sameer and Tendulkar, Purva and Batra, Dhruv and Parikh, Devi and Selvaraju, Ramprasaath R},
+  journal={arXiv preprint arXiv:2010.10038},
+  year={2020}
+}
+```
+
 Replicating the experiments of the paper broadly involves two parts :
 
 # 1. VQA experiments in Pythia.
@@ -35,14 +46,3 @@ python tools/run.py --tasks vqa --datasets vqa2 --model pythia --config configs/
 - The validation script could be executed with the trained model to generate the Grad-CAM vectors for each of the three types of questions - reasoning, sub-questions and irrelevant questions. These are then written to a CSV file. 
 
 - Once these CSV files are generated, run the Jupyter notebook ```similarity_ranking.ipynb``` which contains a step-by-step walkthrough of the code to compute similarity vectors and the ranking metrics.
-
-If you use this code, please consider citing the paper as:
-
-```
-@article{dharur2020sort,
-  title={SOrT-ing VQA Models: Contrastive Gradient Learning for Improved Consistency},
-  author={Dharur, Sameer and Tendulkar, Purva and Batra, Dhruv and Parikh, Devi and Selvaraju, Ramprasaath R},
-  journal={arXiv preprint arXiv:2010.10038},
-  year={2020}
-}
-```
